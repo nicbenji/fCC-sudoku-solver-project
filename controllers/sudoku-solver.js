@@ -7,6 +7,7 @@ class SudokuSolver {
     return /^[1-9.]+$/.test(puzzleString);
   }
 
+  // TODO: Remove column param if not necessary
   checkRowPlacement(puzzleString, row, _column, value) {
     // e.g. puzzleString = see ./puzzle-strings.js row = A-I column = 1-9 value = 1-9
     const rowString = this.getRow(puzzleString, row);
