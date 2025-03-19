@@ -73,41 +73,62 @@ class SudokuSolver {
     return this.checkNumAvailable(regionString, value);
   }
 
-  getRegion(puzzleString, rowLetter, colNum) {
+  getRegion(puzzleString, rowLetter, col) {
     const LETTERS_PER_REGION = 9;
-    const REGIONS_PER_ROW = 3;
+    const REGION_COUNT = Math.sqrt(LETTERS_PER_REGION);
+    const rowNum = this.mapRow(rowLetter) - 1;
+    const colNum = col - 1;
 
-    const rowNum = this.mapRow(rowLetter);
-    const regionRow = this.mapToRegionIndex(rowNum);
-    const regionRowStart = (regionRow - 1) *
-      (REGIONS_PER_ROW * LETTERS_PER_REGION);
-    const regionRowEnd = regionRow * (REGIONS_PER_ROW * LETTERS_PER_REGION);
-
-    const regionCol = this.mapToRegionIndex(colNum);
-    const regionTopRight = regionRowStart + (regionCol * REGIONS_PER_ROW - 1);
+    const startCol = Math.floor(rowNum / REGION_COUNT) * REGION_COUNT;
+    const startRow = Math.floor(colNum / REGION_COUNT) * REGION_COUNT;
 
     let region = '';
-    for (let i = regionTopRight; i < regionRowEnd; i += LETTERS_PER_REGION) {
-      region += puzzleString[i - 2];
-      region += puzzleString[i - 1];
-      region += puzzleString[i];
+    for (let i = 0; i < REGION_COUNT; i++) {
+      for (let j = 0; j < REGION_COUNT; j++) {
+        const letterIndex = (startRow + i) * LETTERS_PER_REGION + (startCol + j);
+        region += puzzleString[letterIndex];
+      }
     }
     return region;
   }
 
-  mapToRegionIndex(num) {
-    if (num > 9) {
-      throw new Error('invalid row or column num');
-    }
+  // NOTE: My algorithm to laught at, at a later date, more readable version above
+  //
+  // getRegion(puzzleString, rowLetter, colNum) {
+  //   const LETTERS_PER_REGION = 9;
+  //   const REGIONS_PER_ROW = 3;
 
-    if (num <= 3) {
-      return 1;
-    }
-    if (num <= 6) {
-      return 2;
-    }
-    return 3;
-  }
+  //   const rowNum = this.mapRow(rowLetter);
+  //   const regionRow = this.mapToRegionIndex(rowNum);
+  //   const regionRowStart = (regionRow - 1) *
+  //     (REGIONS_PER_ROW * LETTERS_PER_REGION);
+  //   const regionRowEnd = regionRow * (REGIONS_PER_ROW * LETTERS_PER_REGION);
+
+  //   const regionCol = this.mapToRegionIndex(colNum);
+  //   const regionTopRight = regionRowStart + (regionCol * REGIONS_PER_ROW - 1);
+
+  //   let region = '';
+  //   for (let i = regionTopRight; i < regionRowEnd; i += LETTERS_PER_REGION) {
+  //     region += puzzleString[i - 2];
+  //     region += puzzleString[i - 1];
+  //     region += puzzleString[i];
+  //   }
+  //   return region;
+  // }
+
+  // mapToRegionIndex(num) {
+  //   if (num > 9) {
+  //     throw new Error('invalid row or column num');
+  //   }
+
+  //   if (num <= 3) {
+  //     return 1;
+  //   }
+  //   if (num <= 6) {
+  //     return 2;
+  //   }
+  //   return 3;
+  // }
 
   solve(puzzleString) {
 
