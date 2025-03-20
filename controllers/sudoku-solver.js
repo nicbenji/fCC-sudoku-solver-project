@@ -1,10 +1,24 @@
+// NOTE: Should be class members
+const PUZZLE_STRING_LENGTH = 81;
+const LETTERS_PER_UNIT = 9;
+const rowMapper = {
+  A: 1,
+  B: 2,
+  C: 3,
+  D: 4,
+  E: 5,
+  F: 6,
+  G: 7,
+  H: 8,
+  I: 9
+}
+
 class SudokuSolver {
   // e.g. puzzleString = see ./puzzle-strings.js row = A-I column = 1-9 value = 1-9
   // WARNING: GOD CLASS
-  // NOTE: Class attributes seem to be bug because of babel
+  // NOTE: Class attributes seem to be buggy because of babel
 
   validate(puzzleString) {
-    const PUZZLE_STRING_LENGTH = 81;
     if (puzzleString.length !== PUZZLE_STRING_LENGTH) {
       return false;
     }
@@ -17,16 +31,8 @@ class SudokuSolver {
   }
 
   mapRow(row) {
-    const rowMapper = {
-      A: 1,
-      B: 2,
-      C: 3,
-      D: 4,
-      E: 5,
-      F: 6,
-      G: 7,
-      H: 8,
-      I: 9
+    if (typeof row === 'number') {
+      return row;
     }
     const rowNum = rowMapper[row.toUpperCase()];
     if (!rowNum) {
@@ -36,33 +42,31 @@ class SudokuSolver {
   }
 
   // TODO: Remove column param if not necessary
-  checkRowPlacement(puzzleString, row, _column, value) {
+  checkRowPlacement(puzzleString, row, value) {
     const rowString = this.getRow(puzzleString, row);
     return this.checkNumAvailable(rowString, value);
   }
 
-  getRow(puzzleString, rowLetter) {
-    const rowNum = this.mapRow(rowLetter);
+  getRow(puzzleString, row) {
+    const rowNum = this.mapRow(row);
 
-    const LETTERS_PER_ROW = 9;
-    const end = rowNum * LETTERS_PER_ROW;
-    const start = end - LETTERS_PER_ROW;
-    const row = puzzleString.slice(start, end);
-    return row;
+    const end = rowNum * LETTERS_PER_UNIT;
+    const start = end - LETTERS_PER_UNIT;
+    const rowString = puzzleString.slice(start, end);
+    return rowString;
   }
 
   // TODO: Remove row param if not necessary
-  checkColPlacement(puzzleString, _row, column, value) {
+  checkColPlacement(puzzleString, column, value) {
     const columnString = this.getCol(puzzleString, column);
     return this.checkNumAvailable(columnString, value);
   }
 
   getCol(puzzleString, colNum) {
-    const LETTERS_PER_COLUMN = 9;
     const colStart = colNum - 1;
 
     let column = '';
-    for (let i = colStart; i < puzzleString.length; i += LETTERS_PER_COLUMN) {
+    for (let i = colStart; i < puzzleString.length; i += LETTERS_PER_UNIT) {
       column += puzzleString[i];
     }
     return column;
@@ -73,10 +77,9 @@ class SudokuSolver {
     return this.checkNumAvailable(regionString, value);
   }
 
-  getRegion(puzzleString, rowLetter, col) {
-    const LETTERS_PER_REGION = 9;
-    const REGION_COUNT = Math.sqrt(LETTERS_PER_REGION);
-    const rowNum = this.mapRow(rowLetter) - 1;
+  getRegion(puzzleString, row, col) {
+    const REGION_COUNT = Math.sqrt(LETTERS_PER_UNIT);
+    const rowNum = this.mapRow(row);
     const colNum = col - 1;
 
     const startCol = Math.floor(rowNum / REGION_COUNT) * REGION_COUNT;
@@ -85,7 +88,7 @@ class SudokuSolver {
     let region = '';
     for (let i = 0; i < REGION_COUNT; i++) {
       for (let j = 0; j < REGION_COUNT; j++) {
-        const letterIndex = (startRow + i) * LETTERS_PER_REGION + (startCol + j);
+        const letterIndex = (startRow + i) * LETTERS_PER_UNIT + (startCol + j);
         region += puzzleString[letterIndex];
       }
     }
@@ -130,9 +133,43 @@ class SudokuSolver {
   //   return 3;
   // }
 
-  solve(puzzleString) {
-
+  validPlacement(puzzleString, row, col, value) {
+    return this.checkRowPlacement(puzzleString, row, value)
+      && this.checkColPlacement(puzzleString, col, value)
+      && this.checkRegionPlacement(puzzleString, row, col, value);
   }
+
+  solve(puzzleString) {
+    if (!this.validate(puzzleString)) {
+      throw new Error('???');
+    }
+
+    let solution = '';
+    for (let i = 0; i < LETTERS_PER_UNIT; i++) {
+      for (let j = 0; i < LETTERS_PER_UNIT; j++) {
+
+        const index = i * LETTERS_PER_UNIT + j;
+        const field = puzzleString[index];
+        console.log(solution);
+
+        if (field != '.') {
+          solution += field;
+        } else {
+          for (let value = 1; value <= LETTERS_PER_UNIT; value++) {
+
+            if (!this.validPlacement(puzzleString, i + 1, j + 1, value)) {
+              continue;
+            }
+
+            // TODO: Safe possible solutions in array instead?
+            solution += value;
+          }
+        }
+      }
+    }
+    return solution;
+  }
+
 }
 
 module.exports = SudokuSolver;
