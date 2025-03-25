@@ -1,6 +1,6 @@
 // NOTE: Should be class members
 const PUZZLE_STRING_LENGTH = 81;
-const LETTERS_PER_UNIT = 9;
+const NUMS_PER_UNIT = 9;
 const rowMapper = {
   A: 1,
   B: 2,
@@ -26,7 +26,7 @@ class SudokuSolver {
   }
 
   checkNumAvailable(sudokuString, value) {
-    const nums = sudokuString.match(/\d/g);
+    const nums = sudokuString.match(/\d/g) || [];
     return !nums.map((numString) => Number(numString)).includes(value);
   }
 
@@ -49,9 +49,8 @@ class SudokuSolver {
 
   getRow(puzzleString, row) {
     const rowNum = this.mapRow(row);
-
-    const end = rowNum * LETTERS_PER_UNIT;
-    const start = end - LETTERS_PER_UNIT;
+    const start = (rowNum - 1) * NUMS_PER_UNIT;
+    const end = start + NUMS_PER_UNIT;
     const rowString = puzzleString.slice(start, end);
     return rowString;
   }
@@ -66,7 +65,7 @@ class SudokuSolver {
     const colStart = colNum - 1;
 
     let column = '';
-    for (let i = colStart; i < puzzleString.length; i += LETTERS_PER_UNIT) {
+    for (let i = colStart; i < puzzleString.length; i += NUMS_PER_UNIT) {
       column += puzzleString[i];
     }
     return column;
@@ -78,17 +77,17 @@ class SudokuSolver {
   }
 
   getRegion(puzzleString, row, col) {
-    const REGION_COUNT = Math.sqrt(LETTERS_PER_UNIT);
-    const rowNum = this.mapRow(row);
+    const REGION_COUNT = Math.sqrt(NUMS_PER_UNIT);
+    const rowNum = this.mapRow(row) - 1;
     const colNum = col - 1;
 
-    const startCol = Math.floor(rowNum / REGION_COUNT) * REGION_COUNT;
-    const startRow = Math.floor(colNum / REGION_COUNT) * REGION_COUNT;
+    const startCol = Math.floor(colNum / REGION_COUNT) * REGION_COUNT;
+    const startRow = Math.floor(rowNum / REGION_COUNT) * REGION_COUNT;
 
     let region = '';
     for (let i = 0; i < REGION_COUNT; i++) {
       for (let j = 0; j < REGION_COUNT; j++) {
-        const letterIndex = (startRow + i) * LETTERS_PER_UNIT + (startCol + j);
+        const letterIndex = (startRow + i) * NUMS_PER_UNIT + (startCol + j);
         region += puzzleString[letterIndex];
       }
     }
@@ -144,32 +143,42 @@ class SudokuSolver {
       throw new Error('???');
     }
 
-    let solution = '';
-    for (let i = 0; i < LETTERS_PER_UNIT; i++) {
-      for (let j = 0; i < LETTERS_PER_UNIT; j++) {
+    const backtrackedPuzzles = [{ puzzle: puzzleString, i: 0 }];
 
-        const index = i * LETTERS_PER_UNIT + j;
-        const field = puzzleString[index];
-        console.log(solution);
+    while (backtrackedPuzzles.length > 0) {
+      const { puzzle, i } = backtrackedPuzzles.pop();
 
-        if (field != '.') {
-          solution += field;
-        } else {
-          for (let value = 1; value <= LETTERS_PER_UNIT; value++) {
+      if (i === puzzleString.length) {
+        return puzzle;
+      }
 
-            if (!this.validPlacement(puzzleString, i + 1, j + 1, value)) {
-              continue;
-            }
+      const char = puzzle[i];
 
-            // TODO: Safe possible solutions in array instead?
-            solution += value;
-          }
+      const col = i % NUMS_PER_UNIT + 1;
+      const row = Math.floor(i / NUMS_PER_UNIT) + 1;
+      console.log("Row, col", row, col);
+
+      if (char !== '.') {
+        backtrackedPuzzles.push({ puzzle, i: i + 1 });
+        continue;
+      }
+
+
+      for (let value = 1; value <= NUMS_PER_UNIT; value++) {
+        if (this.validPlacement(puzzle, row, col, value)) {
+          const newPuzzle = this.getNextPuzzle(puzzle, i, value);
+          console.log("newpuzzle", newPuzzle);
+          backtrackedPuzzles.push({ puzzle: newPuzzle, i: i + 1 });
         }
       }
     }
-    return solution;
+    return 'Puzzle cannot be solved';
+
   }
 
+  getNextPuzzle(puzzle, index, value) {
+    return puzzle.slice(0, index) + value + puzzle.slice(index + 1);
+  }
 }
 
 module.exports = SudokuSolver;
