@@ -1,24 +1,25 @@
 require('dotenv').config();
-const express     = require('express');
-const bodyParser  = require('body-parser');
-const expect      = require('chai').expect;
-const cors        = require('cors');
+const express = require('express');
+const bodyParser = require('body-parser');
+const expect = require('chai').expect;
+const cors = require('cors');
 
-const fccTestingRoutes  = require('./routes/fcctesting.js');
-const apiRoutes         = require('./routes/api.js');
-const runner            = require('./test-runner');
+const fccTestingRoutes = require('./routes/fcctesting.js');
+const apiRoutes = require('./routes/api.js');
+const runner = require('./test-runner');
 
 const app = express();
 
 app.use('/public', express.static(process.cwd() + '/public'));
-app.use(cors({origin: '*'})); //For FCC testing purposes only
+app.use(cors({ origin: '*' })); //For FCC testing purposes only
 
 app.use(bodyParser.json());
+app.use(express.text());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 //Index page (static HTML)
 app.route('/')
-  .get(function (req, res) {
+  .get(function(req, res) {
     res.sendFile(process.cwd() + '/views/index.html');
   });
 
@@ -27,7 +28,7 @@ fccTestingRoutes(app);
 
 // User routes
 apiRoutes(app);
-    
+
 //404 Not Found Middleware
 app.use(function(req, res, next) {
   res.status(404)
@@ -37,12 +38,12 @@ app.use(function(req, res, next) {
 
 //Start our server and tests!
 const PORT = process.env.PORT || 3000
-app.listen(PORT, function () {
+app.listen(PORT, function() {
   console.log("Listening on port " + PORT);
   // process.env.NODE_ENV='test'
-  if (process.env.NODE_ENV==='test') {
+  if (process.env.NODE_ENV === 'test') {
     console.log('Running Tests...');
-    setTimeout(function () {
+    setTimeout(function() {
       try {
         runner.run();
       } catch (error) {

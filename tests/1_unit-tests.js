@@ -17,13 +17,13 @@ suite('Unit Tests', () => {
   test('should handle an invalid puzzle string with invalid chars', () => {
     const puzzle = '1.5..2.8A..63.12.7.2..5.....t..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.';
 
-    assert.isFalse(solver.validate(puzzle));
+    assert.throw(() => solver.validate(puzzle), 'Invalid characters in puzzle');
   });
 
   test('should handle an invalid puzzle string not 81 chars in length', () => {
     const puzzle = '1.5..2.84..63.12.7.2..5.....9..1....'
 
-    assert.isFalse(solver.validate(puzzle));
+    assert.throw(() => solver.validate(puzzle), 'Expected puzzle to be 81 characters long');
   });
 
   test('should handle a valid row placement', () => {
@@ -77,12 +77,12 @@ suite('Unit Tests', () => {
 
   test('should fail on invalid puzzle string', () => {
     const puzzle = '2.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.';
-    assert.equal(solver.solve(puzzle), 'Puzzle cannot be solved');
+    assert.throw(() => solver.solve(puzzle), 'Puzzle cannot be solved');
   });
 
   test('should return the expected solution for an incomplete puzzle', () => {
-    const puzzle = '';
-    assert.equal(solver.solve(puzzle), '');
+    const puzzle = '1...........................9..1...............7.2............1..16..............';
+    assert.equal(solver.solve(puzzle), '189765432765432918432981765896517324524396187317824659678243591951678243243159876');
   });
 
 });

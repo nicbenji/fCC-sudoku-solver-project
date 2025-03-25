@@ -20,9 +20,32 @@ class SudokuSolver {
 
   validate(puzzleString) {
     if (puzzleString.length !== PUZZLE_STRING_LENGTH) {
-      return false;
+      throw new Error('Expected puzzle to be 81 characters long');
     }
-    return /^[1-9.]+$/.test(puzzleString);
+    if (!/^[1-9.]+$/.test(puzzleString)) {
+      throw new Error('Invalid characters in puzzle');
+    }
+    if (!this.checkPuzzleValidity(puzzleString)) {
+      throw new Error('Puzzle cannot be solved');
+    };
+    return true;
+  }
+
+  checkPuzzleValidity(puzzleString) {
+    for (let i = 0; i < NUMS_PER_UNIT; i++) {
+      const row = this.getRow(puzzleString, i + 1);
+      const col = this.getRow(puzzleString, i + 1);
+      const region = this.getRegion(puzzleString, Math.floor(i / 3) * 3 + 1, (i % 3) * 3 + 1);
+      if (!(this.isUnique(row) || this.isUnique(col) || this.isUnique(region))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  isUnique(unit) {
+    const nums = unit.replace(/\./g, '').split('');
+    return new Set(nums).size === nums.length;
   }
 
   checkNumAvailable(sudokuString, value) {
@@ -36,13 +59,15 @@ class SudokuSolver {
     }
     const rowNum = rowMapper[row.toUpperCase()];
     if (!rowNum) {
-      throw new Error('invalid row');
+      throw new Error('Invalid coordinate');
     }
     return rowNum;
   }
 
-  // TODO: Remove column param if not necessary
   checkRowPlacement(puzzleString, row, value) {
+    if (value < 0 || value > 9) {
+      throw new Error('Invalid value');
+    }
     const rowString = this.getRow(puzzleString, row);
     return this.checkNumAvailable(rowString, value);
   }
@@ -55,8 +80,13 @@ class SudokuSolver {
     return rowString;
   }
 
-  // TODO: Remove row param if not necessary
   checkColPlacement(puzzleString, column, value) {
+    if (column < 0 || column > 9) {
+      throw new Error('Invalid coordinate');
+    }
+    if (value < 0 || value > 9) {
+      throw new Error('Invalid value');
+    }
     const columnString = this.getCol(puzzleString, column);
     return this.checkNumAvailable(columnString, value);
   }
@@ -72,6 +102,12 @@ class SudokuSolver {
   }
 
   checkRegionPlacement(puzzleString, row, column, value) {
+    if (column < 0 || column > 9) {
+      throw new Error('Invalid coordinate');
+    }
+    if (value < 0 || value > 9) {
+      throw new Error('Invalid value');
+    }
     const regionString = this.getRegion(puzzleString, row, column);
     return this.checkNumAvailable(regionString, value);
   }
@@ -94,44 +130,6 @@ class SudokuSolver {
     return region;
   }
 
-  // NOTE: My algorithm to laught at, at a later date, more readable version above
-  //
-  // getRegion(puzzleString, rowLetter, colNum) {
-  //   const LETTERS_PER_REGION = 9;
-  //   const REGIONS_PER_ROW = 3;
-
-  //   const rowNum = this.mapRow(rowLetter);
-  //   const regionRow = this.mapToRegionIndex(rowNum);
-  //   const regionRowStart = (regionRow - 1) *
-  //     (REGIONS_PER_ROW * LETTERS_PER_REGION);
-  //   const regionRowEnd = regionRow * (REGIONS_PER_ROW * LETTERS_PER_REGION);
-
-  //   const regionCol = this.mapToRegionIndex(colNum);
-  //   const regionTopRight = regionRowStart + (regionCol * REGIONS_PER_ROW - 1);
-
-  //   let region = '';
-  //   for (let i = regionTopRight; i < regionRowEnd; i += LETTERS_PER_REGION) {
-  //     region += puzzleString[i - 2];
-  //     region += puzzleString[i - 1];
-  //     region += puzzleString[i];
-  //   }
-  //   return region;
-  // }
-
-  // mapToRegionIndex(num) {
-  //   if (num > 9) {
-  //     throw new Error('invalid row or column num');
-  //   }
-
-  //   if (num <= 3) {
-  //     return 1;
-  //   }
-  //   if (num <= 6) {
-  //     return 2;
-  //   }
-  //   return 3;
-  // }
-
   validPlacement(puzzleString, row, col, value) {
     return this.checkRowPlacement(puzzleString, row, value)
       && this.checkColPlacement(puzzleString, col, value)
@@ -139,9 +137,7 @@ class SudokuSolver {
   }
 
   solve(puzzleString) {
-    if (!this.validate(puzzleString)) {
-      throw new Error('???');
-    }
+    this.validate(puzzleString);
 
     const backtrackedPuzzles = [{ puzzle: puzzleString, i: 0 }];
 
@@ -156,24 +152,21 @@ class SudokuSolver {
 
       const col = i % NUMS_PER_UNIT + 1;
       const row = Math.floor(i / NUMS_PER_UNIT) + 1;
-      console.log("Row, col", row, col);
 
       if (char !== '.') {
         backtrackedPuzzles.push({ puzzle, i: i + 1 });
         continue;
       }
 
-
       for (let value = 1; value <= NUMS_PER_UNIT; value++) {
         if (this.validPlacement(puzzle, row, col, value)) {
           const newPuzzle = this.getNextPuzzle(puzzle, i, value);
-          console.log("newpuzzle", newPuzzle);
           backtrackedPuzzles.push({ puzzle: newPuzzle, i: i + 1 });
         }
       }
     }
-    return 'Puzzle cannot be solved';
 
+    throw new Error('Puzzle cannot be solved');
   }
 
   getNextPuzzle(puzzle, index, value) {
@@ -182,3 +175,43 @@ class SudokuSolver {
 }
 
 module.exports = SudokuSolver;
+
+// NOTE: My algorithm to laught at, at a later date, more readable version above
+//
+// getRegion(puzzleString, rowLetter, colNum) {
+//   const LETTERS_PER_REGION = 9;
+//   const REGIONS_PER_ROW = 3;
+
+//   const rowNum = this.mapRow(rowLetter);
+//   const regionRow = this.mapToRegionIndex(rowNum);
+//   const regionRowStart = (regionRow - 1) *
+//     (REGIONS_PER_ROW * LETTERS_PER_REGION);
+//   const regionRowEnd = regionRow * (REGIONS_PER_ROW * LETTERS_PER_REGION);
+
+//   const regionCol = this.mapToRegionIndex(colNum);
+//   const regionTopRight = regionRowStart + (regionCol * REGIONS_PER_ROW - 1);
+
+//   let region = '';
+//   for (let i = regionTopRight; i < regionRowEnd; i += LETTERS_PER_REGION) {
+//     region += puzzleString[i - 2];
+//     region += puzzleString[i - 1];
+//     region += puzzleString[i];
+//   }
+//   return region;
+// }
+
+// mapToRegionIndex(num) {
+//   if (num > 9) {
+//     throw new Error('invalid row or column num');
+//   }
+
+//   if (num <= 3) {
+//     return 1;
+//   }
+//   if (num <= 6) {
+//     return 2;
+//   }
+//   return 3;
+// }
+
+
