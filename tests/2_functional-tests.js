@@ -10,8 +10,7 @@ suite('Functional Tests', () => {
   test('/api/solve should solve a valid puzzle', (done) => {
     chai.request(server)
       .post('/api/solve')
-      .set('Content-Type', 'text/plain')
-      .send('82..4..6...16..89...98315.749.157.............53..4...96.415..81..7632..3...28.51')
+      .send({ puzzle: '82..4..6...16..89...98315.749.157.............53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
         assert.deepInclude(
           res.body,
@@ -26,7 +25,6 @@ suite('Functional Tests', () => {
   test('/api/solve should return an error on missing puzzle string', (done) => {
     chai.request(server)
       .post('/api/solve')
-      .set('Content-Type', 'text/plain')
       .end((_err, res) => {
         assert.deepInclude(
           res.body,
@@ -41,8 +39,7 @@ suite('Functional Tests', () => {
   test('/api/solve should return an error on invalid chars', (done) => {
     chai.request(server)
       .post('/api/solve')
-      .set('Content-Type', 'text/plain')
-      .send('8Z..4..6...16..8!...98315.749.157....;........53..4...96.415..81..7632..3...28.51')
+      .send({ puzzle: '8Z..4..6...16..8!...98315.749.157....;........53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
         assert.deepInclude(
           res.body,
@@ -57,8 +54,7 @@ suite('Functional Tests', () => {
   test('/api/solve should return an error on incorrect puzzle length', (done) => {
     chai.request(server)
       .post('/api/solve')
-      .set('Content-Type', 'text/plain')
-      .send('8..98315.749.157.............53..4...96.415..81..7632..3...28.51')
+      .send({ puzzle: '8..98315.749.157.............53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
         assert.deepInclude(
           res.body,
@@ -73,8 +69,7 @@ suite('Functional Tests', () => {
   test('/api/solve should return an error if puzzle cannot be solved', (done) => {
     chai.request(server)
       .post('/api/solve')
-      .set('Content-Type', 'text/plain')
-      .send('82..4..6..816...9...98315.749.157.............53..4...96.415..81..7632..3...28.51')
+      .send({ puzzle: '82..4..6..816...9...98315.749.157.............53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
         assert.deepInclude(
           res.body,
