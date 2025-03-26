@@ -9,28 +9,33 @@ module.exports = function(app) {
   // NOTE: Some of this logic should probs be in the controller
   app.route('/api/check')
     .post((req, res) => {
-      const puzzleString = req.body.puzzle;
-      const coordinate = req.body.coordinate;
-      const value = req.body.value;
-      if (!puzzleString || !coordinate || (!value && value !== 0)) {
-        res.json({ error: 'Required field(s) missing' });
+      const { puzzle, coordinate, value } = req.body;
+      if (!puzzle || !coordinate || (!value && value !== 0)) {
+        return res.json({ error: 'Required field(s) missing' });
       }
 
       try {
-        solver.validate(puzzleString);
+        solver.validate(puzzle);
         const { row, col } = solver.validateCoordinate(coordinate);
         const checkedValue = solver.validateValue(value);
+        const coordinateIndex = puzzle[solver.getCellIndex(row, col)];
 
-        if (solver.validPlacement(puzzleString, row, col, checkedValue)) {
+        if (coordinateIndex === value) {
+          return res.json({ valid: true });
+        }
+        if (solver.validPlacement(puzzle, row, col, checkedValue)) {
           return res.json({ valid: true });
         }
 
-        const conflict = solver
-          .getConflicts(puzzleString, row, col, checkedValue);
+        const clearedPuzzle = puzzle.slice(0, coordinateIndex)
+          + '.' + puzzle.slice(coordinateIndex + 1);
+
+        const conflicts = solver
+          .getConflicts(puzzle, row, col, checkedValue);
 
         return res.json({
           valid: false,
-          conflict
+          conflict: conflicts
         });
       } catch (error) {
         return res.json({ error: error.message });

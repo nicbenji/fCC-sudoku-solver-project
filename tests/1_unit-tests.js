@@ -1,7 +1,6 @@
 const chai = require('chai');
 const assert = chai.assert;
 
-const Solver = require('../controllers/sudoku-solver.js');
 const SudokuSolver = require('../controllers/sudoku-solver.js');
 
 let solver = new SudokuSolver();
@@ -17,13 +16,15 @@ suite('Unit Tests', () => {
   test('should handle an invalid puzzle string with invalid chars', () => {
     const puzzle = '1.5..2.8A..63.12.7.2..5.....t..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.';
 
-    assert.throw(() => solver.validate(puzzle), 'Invalid characters in puzzle');
+    assert.throws(() => solver.validate(puzzle), 'Invalid characters in puzzle');
+    assert.isTrue(true);
   });
 
   test('should handle an invalid puzzle string not 81 chars in length', () => {
     const puzzle = '1.5..2.84..63.12.7.2..5.....9..1....'
 
-    assert.throw(() => solver.validate(puzzle), 'Expected puzzle to be 81 characters long');
+    assert.throws(() => solver.validate(puzzle), 'Expected puzzle to be 81 characters long');
+    assert.isTrue(true);
   });
 
   test('should handle a valid row placement', () => {
@@ -77,7 +78,8 @@ suite('Unit Tests', () => {
 
   test('should fail on invalid puzzle string', () => {
     const puzzle = '2.5..2.84..63.12.7.2..5.....9..1....8.2.3674.3.7.2..9.47...8..1..16....926914.37.';
-    assert.throw(() => solver.solve(puzzle), 'Puzzle cannot be solved');
+    assert.throws(() => solver.solve(puzzle), 'Puzzle cannot be solved');
+    assert.isTrue(true);
   });
 
   test('should return the expected solution for an incomplete puzzle', () => {

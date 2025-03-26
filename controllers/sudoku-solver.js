@@ -36,9 +36,12 @@ class SudokuSolver {
     const COORDINATE_ERROR = 'Invalid coordinate';
     let row, col;
     try {
-      [row, col] = coordinate.toString().split('');
-      col = Number(col);
-      row = this.mapRow(row);
+      const coordinates = coordinate.toString().split('');
+      if (coordinates.length === 2) {
+        [row, col] = coordinates;
+        row = this.mapRow(row);
+        col = Number(col);
+      }
     } catch (error) {
       throw new Error(COORDINATE_ERROR);
     }
@@ -46,6 +49,9 @@ class SudokuSolver {
       throw new Error(COORDINATE_ERROR);
     }
     if (isNaN(col)) {
+      throw new Error(COORDINATE_ERROR);
+    }
+    if (col < 1 || col > 9) {
       throw new Error(COORDINATE_ERROR);
     }
     return { row: row - 1, col: col - 1 };
@@ -61,7 +67,8 @@ class SudokuSolver {
 
   validateValue(value) {
     const VALUE_ERROR = 'Invalid value';
-    if (typeof value !== 'number') {
+    value = Number(value);
+    if (isNaN(value)) {
       throw new Error(VALUE_ERROR);
     }
     if (value < 1 || value > 9) {
@@ -72,9 +79,9 @@ class SudokuSolver {
 
   checkPuzzleValidity(puzzleString) {
     for (let i = 0; i < NUMS_PER_UNIT; i++) {
-      const row = this.getRow(puzzleString, i + 1);
-      const col = this.getCol(puzzleString, i + 1);
-      const region = this.getRegion(puzzleString, Math.floor(i / 3) * 3 + 1, (i % 3) * 3 + 1);
+      const row = this.getRow(puzzleString, i);
+      const col = this.getCol(puzzleString, i);
+      const region = this.getRegion(puzzleString, Math.floor(i / 3) * 3, (i % 3) * 3);
       if (!this.isUnique(row) || !this.isUnique(col) || !this.isUnique(region)) {
         return false;
       }
@@ -192,6 +199,10 @@ class SudokuSolver {
 
   getNextPuzzle(puzzle, index, value) {
     return puzzle.slice(0, index) + value + puzzle.slice(index + 1);
+  }
+
+  getCellIndex(row, col) {
+    return row * NUMS_PER_UNIT + col;
   }
 }
 
