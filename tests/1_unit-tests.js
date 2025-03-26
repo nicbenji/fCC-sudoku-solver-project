@@ -28,44 +28,44 @@ suite('Unit Tests', () => {
 
   test('should handle a valid row placement', () => {
     const puzzle = '..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
-    const row = 'a';
+    const row = 0;
     const value = 7;
     assert.isTrue(solver.checkRowPlacement(puzzle, row, value));
   });
 
   test('should handle an invalid row placement', () => {
     const puzzle = '..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
-    const row = 'a';
+    const row = 0;
     const value = 1;
     assert.isFalse(solver.checkRowPlacement(puzzle, row, value));
   });
 
   test('should handle a valid column placement', () => {
     const puzzle = '..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
-    const column = 1;
+    const column = 0;
     const value = 7;
     assert.isTrue(solver.checkColPlacement(puzzle, column, value));
   });
 
   test('should handle an invalid column placement', () => {
     const puzzle = '..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
-    const column = 1;
+    const column = 0;
     const value = 5;
     assert.isFalse(solver.checkColPlacement(puzzle, column, value));
   });
 
   test('should handle a valid region placement', () => {
     const puzzle = '..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
-    const row = 'h';
-    const column = 7;
+    const row = 7;
+    const column = 6;
     const value = 5;
     assert.isTrue(solver.checkRegionPlacement(puzzle, row, column, value));
   });
 
   test('should handle an invalid region placement', () => {
     const puzzle = '..9..5.1.85.4....2432......1...69.83.9.....6.62.71...9......1945....4.37.4.3..6..';
-    const row = 'e';
-    const column = 5;
+    const row = 4;
+    const column = 4;
     const value = 1;
     assert.isFalse(solver.checkRegionPlacement(puzzle, row, column, value));
   });

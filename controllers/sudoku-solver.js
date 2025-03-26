@@ -31,12 +31,51 @@ class SudokuSolver {
     return true;
   }
 
+  // Beutiful cod, we all love tricatch
+  validateCoordinate(coordinate) {
+    const COORDINATE_ERROR = 'Invalid coordinate';
+    let row, col;
+    try {
+      [row, col] = coordinate.toString().split('');
+      col = Number(col);
+      row = this.mapRow(row);
+    } catch (error) {
+      throw new Error(COORDINATE_ERROR);
+    }
+    if (!row || !col) {
+      throw new Error(COORDINATE_ERROR);
+    }
+    if (isNaN(col)) {
+      throw new Error(COORDINATE_ERROR);
+    }
+    return { row: row - 1, col: col - 1 };
+  }
+
+  mapRow(row) {
+    const rowNum = rowMapper[row.toUpperCase()];
+    if (!rowNum) {
+      throw new Error('Invalid row');
+    }
+    return rowNum;
+  }
+
+  validateValue(value) {
+    const VALUE_ERROR = 'Invalid value';
+    if (typeof value !== 'number') {
+      throw new Error(VALUE_ERROR);
+    }
+    if (value < 1 || value > 9) {
+      throw new Error(VALUE_ERROR);
+    }
+    return value;
+  }
+
   checkPuzzleValidity(puzzleString) {
     for (let i = 0; i < NUMS_PER_UNIT; i++) {
       const row = this.getRow(puzzleString, i + 1);
-      const col = this.getRow(puzzleString, i + 1);
+      const col = this.getCol(puzzleString, i + 1);
       const region = this.getRegion(puzzleString, Math.floor(i / 3) * 3 + 1, (i % 3) * 3 + 1);
-      if (!(this.isUnique(row) || this.isUnique(col) || this.isUnique(region))) {
+      if (!this.isUnique(row) || !this.isUnique(col) || !this.isUnique(region)) {
         return false;
       }
     }
@@ -53,72 +92,41 @@ class SudokuSolver {
     return !nums.map((numString) => Number(numString)).includes(value);
   }
 
-  mapRow(row) {
-    if (typeof row === 'number') {
-      return row;
-    }
-    const rowNum = rowMapper[row.toUpperCase()];
-    if (!rowNum) {
-      throw new Error('Invalid coordinate');
-    }
-    return rowNum;
-  }
-
   checkRowPlacement(puzzleString, row, value) {
-    if (value < 0 || value > 9) {
-      throw new Error('Invalid value');
-    }
     const rowString = this.getRow(puzzleString, row);
     return this.checkNumAvailable(rowString, value);
   }
 
   getRow(puzzleString, row) {
-    const rowNum = this.mapRow(row);
-    const start = (rowNum - 1) * NUMS_PER_UNIT;
+    const start = row * NUMS_PER_UNIT;
     const end = start + NUMS_PER_UNIT;
     const rowString = puzzleString.slice(start, end);
     return rowString;
   }
 
   checkColPlacement(puzzleString, column, value) {
-    if (column < 0 || column > 9) {
-      throw new Error('Invalid coordinate');
-    }
-    if (value < 0 || value > 9) {
-      throw new Error('Invalid value');
-    }
     const columnString = this.getCol(puzzleString, column);
     return this.checkNumAvailable(columnString, value);
   }
 
   getCol(puzzleString, colNum) {
-    const colStart = colNum - 1;
-
     let column = '';
-    for (let i = colStart; i < puzzleString.length; i += NUMS_PER_UNIT) {
+    for (let i = colNum; i < puzzleString.length; i += NUMS_PER_UNIT) {
       column += puzzleString[i];
     }
     return column;
   }
 
   checkRegionPlacement(puzzleString, row, column, value) {
-    if (column < 0 || column > 9) {
-      throw new Error('Invalid coordinate');
-    }
-    if (value < 0 || value > 9) {
-      throw new Error('Invalid value');
-    }
     const regionString = this.getRegion(puzzleString, row, column);
     return this.checkNumAvailable(regionString, value);
   }
 
   getRegion(puzzleString, row, col) {
     const REGION_COUNT = Math.sqrt(NUMS_PER_UNIT);
-    const rowNum = this.mapRow(row) - 1;
-    const colNum = col - 1;
 
-    const startCol = Math.floor(colNum / REGION_COUNT) * REGION_COUNT;
-    const startRow = Math.floor(rowNum / REGION_COUNT) * REGION_COUNT;
+    const startCol = Math.floor(col / REGION_COUNT) * REGION_COUNT;
+    const startRow = Math.floor(row / REGION_COUNT) * REGION_COUNT;
 
     let region = '';
     for (let i = 0; i < REGION_COUNT; i++) {
@@ -136,6 +144,20 @@ class SudokuSolver {
       && this.checkRegionPlacement(puzzleString, row, col, value);
   }
 
+  getConflicts(puzzleString, row, col, value) {
+    const conflicts = [];
+    if (!this.checkRowPlacement(puzzleString, row, value)) {
+      conflicts.push('row');
+    }
+    if (!this.checkColPlacement(puzzleString, col, value)) {
+      conflicts.push('column');
+    }
+    if (!this.checkRegionPlacement(puzzleString, row, col, value)) {
+      conflicts.push('region');
+    }
+    return conflicts;
+  }
+
   solve(puzzleString) {
     this.validate(puzzleString);
 
@@ -150,8 +172,8 @@ class SudokuSolver {
 
       const char = puzzle[i];
 
-      const col = i % NUMS_PER_UNIT + 1;
-      const row = Math.floor(i / NUMS_PER_UNIT) + 1;
+      const col = i % NUMS_PER_UNIT;
+      const row = Math.floor(i / NUMS_PER_UNIT);
 
       if (char !== '.') {
         backtrackedPuzzles.push({ puzzle, i: i + 1 });
@@ -165,7 +187,6 @@ class SudokuSolver {
         }
       }
     }
-
     throw new Error('Puzzle cannot be solved');
   }
 

@@ -11,29 +11,22 @@ module.exports = function(app) {
     .post((req, res) => {
       const puzzleString = req.body.puzzle;
       const coordinate = req.body.coordinate;
-      if (!puzzleString || !coordinate) {
+      const value = req.body.value;
+      if (!puzzleString || !coordinate || (!value && value !== 0)) {
         res.json({ error: 'Required field(s) missing' });
       }
-      const value = req.body.value;
 
       try {
         solver.validate(puzzleString);
+        const { row, col } = solver.validateCoordinate(coordinate);
+        const checkedValue = solver.validateValue(value);
 
-        const [row, col] = coordinate.toString().split('');
-        if (solver.validPlacement(puzzleString, row, col, value)) {
+        if (solver.validPlacement(puzzleString, row, col, checkedValue)) {
           return res.json({ valid: true });
         }
 
-        const conflict = [];
-        if (!solver.checkRowPlacement(puzzleString, row, value)) {
-          conflict.push('row');
-        }
-        if (!solver.checkColPlacement(puzzleString, row, value)) {
-          conflict.push('column');
-        }
-        if (!solver.checkRegionPlacement(puzzleString, row, col, value)) {
-          conflict.push('region');
-        }
+        const conflict = solver
+          .getConflicts(puzzleString, row, col, checkedValue);
 
         return res.json({
           valid: false,
