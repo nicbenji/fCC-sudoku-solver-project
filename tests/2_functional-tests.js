@@ -12,6 +12,8 @@ suite('Functional Tests', () => {
       .post('/api/solve')
       .send({ puzzle: '82..4..6...16..89...98315.749.157.............53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -26,6 +28,8 @@ suite('Functional Tests', () => {
     chai.request(server)
       .post('/api/solve')
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -41,6 +45,8 @@ suite('Functional Tests', () => {
       .post('/api/solve')
       .send({ puzzle: '8Z..4..6...16..8!...98315.749.157....;........53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -56,6 +62,8 @@ suite('Functional Tests', () => {
       .post('/api/solve')
       .send({ puzzle: '8..98315.749.157.............53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -71,6 +79,8 @@ suite('Functional Tests', () => {
       .post('/api/solve')
       .send({ puzzle: '82..4..6..816...9...98315.749.157.............53..4...96.415..81..7632..3...28.51' })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -90,6 +100,8 @@ suite('Functional Tests', () => {
         value: 7
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -109,6 +121,8 @@ suite('Functional Tests', () => {
         value: 8
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -129,6 +143,8 @@ suite('Functional Tests', () => {
         value: 6
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -149,6 +165,8 @@ suite('Functional Tests', () => {
         value: 1
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -168,6 +186,8 @@ suite('Functional Tests', () => {
         value: 7
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -187,6 +207,8 @@ suite('Functional Tests', () => {
         value: 7
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -206,6 +228,8 @@ suite('Functional Tests', () => {
         value: 7
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -225,6 +249,8 @@ suite('Functional Tests', () => {
         value: 7
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
@@ -244,6 +270,8 @@ suite('Functional Tests', () => {
         value: 0
       })
       .end((_err, res) => {
+        assert.equal(res.status, 200);
+        assert.equal(res.type, 'application/json');
         assert.deepInclude(
           res.body,
           {
